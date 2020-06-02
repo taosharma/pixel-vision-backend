@@ -1,117 +1,117 @@
-# Welcome to Serverless!
-#
-# This file is the main config file for your service.
-# It's very minimal at this point and uses default values.
-# You can always add more config options for more control.
-# We've included some commented out config examples here.
-# Just uncomment any of them to get that config option.
-#
-# For full config options, check the docs:
-#    docs.serverless.com
-#
-# Happy Coding!
+# The name of the project. Will be included as a suffix in all Lambda functions associated with the project.
 
 service: pixel-vision-backend
-# app and org for use with dashboard.serverless.com
-#app: your-app-name
-#org: your-org-name
 
-# You can pin your service to only deploy with a specific Serverless version
-# Check out our docs for more details
-# frameworkVersion: "=X.X.X"
+# A custom environment object. Can be accessed in the .yml with the syntax: ${self:}
+
+custom:
+  settings:
+    # The name of the custom table in DynamoDB
+
+    PIXEL_VISION_TABLE: pixelVisionTable
+
+# A provider object.
 
 provider:
   name: aws
   runtime: nodejs12.x
 
-# you can overwrite defaults here
-#  stage: dev
-#  region: us-east-1
+  # Assigns the enviroment using the settings written above.
 
-# you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:PutObject"
-#      Resource:
-#        Fn::Join:
-#          - ""
-#          - - "arn:aws:s3:::"
-#            - "Ref" : "ServerlessDeploymentBucket"
-#            - "/*"
+  environment: ${self:custom.settings}
 
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
+  # Tells the .yml to use servers in Ireland.
 
-# you can add packaging information here
-#package:
-#  include:
-#    - include-me.js
-#    - include-me-dir/**
-#  exclude:
-#    - exclude-me.js
-#    - exclude-me-dir/**
+  region: eu-west-1
+
+  # iamRoleStatements allows your AWS IAM rol to perform the functions listed below.
+
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - dynamodb:DescribeTable #to know metadata about the table
+        - dynamodb:Scan #gets all the items (like a get req)
+        - dynamodb:GetItem #gets one item
+        - dynamodb:PutItem #adds one item
+        - dynamodb:UpdateItem #like a patch request
+        - dynamodb:DeleteItem #deletes
+      Resource:
+        'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.PIXEL_VISION_TABLE}'
+        # arn (Amazon Resource Name), then specify DynamoDB.
+        # Then use self to point to the region in the above provider object.
+        # Then use self again to define the table declared in the custom environment variables.
+
+# A functions object. This contains all of the CRUD request functions that the database uses
 
 functions:
-  hello:
-    handler: handler.hello
-    #    The following are a few example events you can configure
+  addNewPost: # POST request.
+    handler: handler.addNewPost # Accesses the function in the handler.js file.
     events:
       - http:
-          path: hello
-          method: post
-#    NOTE: Please make sure to change your handler code to work with those events
-#    Check the event documentation for details
-#    events:
-#      - http:
-#          path: users/create
-#          method: get
-#      - websocket: $connect
-#      - s3: ${env:BUCKET}
-#      - schedule: rate(10 minutes)
-#      - sns: greeter-topic
-#      - stream: arn:aws:dynamodb:region:XXXXXX:table/foo/stream/1970-01-01T00:00:00.000
-#      - alexaSkill: amzn1.ask.skill.xx-xx-xx-xx
-#      - alexaSmartHome: amzn1.ask.skill.xx-xx-xx-xx
-#      - iot:
-#          sql: "SELECT * FROM 'some_topic'"
-#      - cloudwatchEvent:
-#          event:
-#            source:
-#              - "aws.ec2"
-#            detail-type:
-#              - "EC2 Instance State-change Notification"
-#            detail:
-#              state:
-#                - pending
-#      - cloudwatchLog: '/aws/lambda/hello'
-#      - cognitoUserPool:
-#          pool: MyUserPool
-#          trigger: PreSignUp
-#      - alb:
-#          listenerArn: arn:aws:elasticloadbalancing:us-east-1:XXXXXX:listener/app/my-load-balancer/50dc6c495c0c9188/
-#          priority: 1
-#          conditions:
-#            host: example.com
-#            path: /hello
+          path: / # The path will be added to the deployment URL.
+          method: post # The HTTP method this function responds to.
+          cors: true # Allows the function get through CORS.
+  getAllPosts: # GET request.
+    handler: handler.getAllPosts
+    events:
+      - http:
+          path: /
+          method: get
+          cors: true
+  getPostsByType: # GET request.
+    handler: handler.getPostsByType
+    events:
+      - http:
+          path: /{type}
+          method: get
+          cors: true
+  getPostById: # GET request.
+    handler: handler.getPostById
+    events:
+      - http:
+          path: /{id}
+          method: put
+          cors: true
+  updatePostById: # PATCH request.
+    handler: handler.updatePostById
+    events:
+      - http:
+          path: /{id}
+          method: patch
+          cors: true
+  deletePostById: # DELETE request.
+    handler: handler.deletePostById
+    events:
+      - http:
+          path: /{id}
+          method: delete
+          cors: true
 
-#    Define function environment variables here
-#    environment:
-#      variable2: value2
+resources:
+  Resources:
+    PixelVisionTable:
+      # Specifies that we want the resource to create a DynamoDB table.
 
-# you can add CloudFormation resource templates here
-#resources:
-#  Resources:
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
-#  Outputs:
-#     NewOutput:
-#       Description: "Description for the output"
-#       Value: "Some output value"
+      Type: AWS::DynamoDB::Table
+
+      # The properties of the table.
+
+      Properties:
+        # The attribute that defines the required fields of the table: a string ID.
+
+        AttributeDefinitions:
+          - AttributeName: 'id'
+            AttributeType: 'S'
+
+        # The attribute that defines the primary key for the table: the above id.
+
+        KeySchema:
+          - AttributeName: 'id'
+            KeyType: 'HASH'
+
+        # The attribute that controls how many times the table can be used.
+
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.settings.PIXEL_VISION_TABLE}
