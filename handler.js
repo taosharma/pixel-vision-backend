@@ -47,26 +47,37 @@ function createResponse(statusCode, message) {
 module.exports.addNewPost = (event, context, callback) => {
   // Parses the whole body out of the event (the request) and assigns it to a variable.
 
+  console.log(event);
+
   const requestBody = JSON.parse(event.body);
 
+  const { type, image, title, date, link, text } = requestBody;
+
+  // The item that will be added to the database, made up of a uuid and the request body.
+
   const item = {
-    //creates the item that will then be added to the database, including the bits from the request body
-    id: uuidv4(), //uses uuid to generate a new unique id for the item
-    createdAt: new Date().toISOString(), //automatically adds a human-readable date to the item as well
-    name: reqBody.name, //destructures the name string out of the request body and saves it to the name key for the database
-    definition: reqBody.definition, //destructures the definition string out of the request body and saves it to the definition key for the database
+    id: uuidv4(),
+    type,
+    image,
+    title,
+    date,
+    link,
+    text,
+    comments,
   };
 
-  return db
+  // Puts the item in the database by using the database name and the item variables. PUT is used rather than POST for DynamoDB.
+
+  return dataBase
     .put({
-      //passes the table name and the item we just created above to the put
-      //NOTE: even though it's creating a new item and is set up in the YAML to respond to post requests, you still use put here when it's talking directly to DynamoDB (it puts a new item rather than putting a replacement here)
-      TableName: demoTable,
+      TableName: pixelVisionTable,
       Item: item,
     })
     .promise()
     .then(() => {
-      callback(null, response(200, item));
+      callback(null, createResponse(200, item));
     })
-    .catch((err) => response(null, response(err.statusCode, err)));
+    .catch((error) =>
+      createResponse(null, createResponse(error.statusCode, error))
+    );
 };
