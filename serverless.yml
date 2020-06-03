@@ -1,3 +1,5 @@
+org: taosharma
+app: pixel-vision-backend
 # The name of the project. Will be included as a suffix in all Lambda functions associated with the project.
 
 service: pixel-vision-backend
@@ -62,28 +64,28 @@ functions:
     handler: handler.getPostsByType
     events:
       - http:
-          path: /type/{type}
+          path: /{type}
           method: get
           cors: true
   getPostById: # GET request.
     handler: handler.getPostById
     events:
       - http:
-          path: /id/{id}
+          path: /{id}
           method: get
           cors: true
   updatePostById: # PATCH request.
     handler: handler.updatePostById
     events:
       - http:
-          path: /id/{id}
+          path: /{id}
           method: patch
           cors: true
   deletePostById: # DELETE request.
     handler: handler.deletePostById
     events:
       - http:
-          path: /id/{id}
+          path: /{id}
           method: delete
           cors: true
 

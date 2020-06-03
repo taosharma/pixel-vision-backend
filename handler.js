@@ -19,7 +19,7 @@ const { v4: uuidv4 } = require('uuid');
 
 // Assigns the table set up in the .yml to a variable to be used in the CRUD functions.
 
-const pixelVisionTable = process.env.PIXEL_VISION_POSTS;
+const pixelVisionTable = process.env.PIXEL_VISION_TABLE;
 
 //---------HELPER FUNCTION TO SEND RESPONSE JSONS WITH HEADERS:---------
 
@@ -51,19 +51,19 @@ module.exports.addNewPost = (event, context, callback) => {
 
   const requestBody = JSON.parse(event.body);
 
-  const { type, image, title, date, link, text } = requestBody;
+  // const { type, image, title, date, link, text } = requestBody;
 
   // The item that will be added to the database, made up of a uuid and the request body.
 
   const item = {
     id: uuidv4(),
-    type,
-    image,
-    title,
-    date,
-    link,
-    text,
-    comments,
+    type: requestBody.type,
+    image: requestBody.image,
+    title: requestBody.title,
+    date: requestBody.date,
+    link: requestBody.link,
+    text: requestBody.text,
+    comments: requestBody.comments,
   };
 
   // Puts the item in the database by using the database name and the item variables. PUT is used rather than POST for DynamoDB.
