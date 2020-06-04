@@ -73,7 +73,7 @@ functions:
     handler: handler.getPostById
     events:
       - http:
-          path: /{id}
+          path: /id/{id}
           method: get
           cors: true
   updatePostById: # PATCH request.

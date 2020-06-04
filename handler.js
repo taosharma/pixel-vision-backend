@@ -108,4 +108,43 @@ function getAllPosts(event, context, callback) {
   );
 }
 
-module.exports = { addNewPost, getAllPosts };
+//---------GET A SINGLE ITEM BY ID:---------
+
+function getPostById(event, context, callback) {
+  // Gets the id out of the parameters of the event aka the request (the equivalent of doing req.params).
+
+  const id = event.pathParameters.id;
+
+  /* Separate params object to tell the db which table and to use the id as the key (which will work because we set up the id in the 
+YAML to be the partition key) */
+
+  const params = {
+    Key: {
+      id: id,
+    },
+    TableName: pixelVisionTable,
+  };
+
+  return (
+    dataBase
+
+      // Passes the params object to get to use it to look for the id in the table
+
+      .get(params)
+      .promise()
+      .then((res) => {
+        // Checks if there's an item with that ID. If so, it's stored in res.Item
+
+        if (res.Item) callback(null, createResponse(200, res.Item));
+        // If it doesn't find anything with that id, you send a 404 error instead.
+        else
+          callback(
+            null,
+            createResponse(404, { error: 'No item with that name found' })
+          );
+      })
+      .catch((err) => callback(null, createResponse(err.statusCode, err)))
+  );
+}
+
+module.exports = { addNewPost, getAllPosts, getPostById };
