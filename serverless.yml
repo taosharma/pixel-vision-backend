@@ -26,6 +26,8 @@ provider:
 
   region: eu-west-1
 
+  cfnRole: arn:aws:iam::971155623121:role/serverless-role
+
   # iamRoleStatements allows your AWS IAM rol to perform the functions listed below.
 
   iamRoleStatements:
@@ -64,7 +66,7 @@ functions:
     handler: handler.getPostsByType
     events:
       - http:
-          path: /{type}
+          path: /type/{type}
           method: get
           cors: true
   getPostById: # GET request.

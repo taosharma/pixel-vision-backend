@@ -44,10 +44,8 @@ function createResponse(statusCode, message) {
 
 //---------CREATE NEW ITEM:---------
 
-module.exports.addNewPost = (event, context, callback) => {
+function addNewPost(event, context, callback) {
   // Parses the whole body out of the event (the request) and assigns it to a variable.
-
-  console.log(event);
 
   const requestBody = JSON.parse(event.body);
 
@@ -80,4 +78,34 @@ module.exports.addNewPost = (event, context, callback) => {
     .catch((error) =>
       createResponse(null, createResponse(error.statusCode, error))
     );
-};
+}
+
+//---------GET ALL ITEMS IN THE TABLE:---------
+
+function getAllPosts(event, context, callback) {
+  // Creates and returns an instance of DynamoDB.
+
+  return (
+    dataBase
+
+      // Scan is a DynamoDB method that gets all of items in a table.
+
+      .scan({
+        TableName: pixelVisionTable, //which table to scan
+      })
+
+      // Returns a promise which, once completed, will contain all of the items in the table.
+
+      .promise()
+
+      //Status code 200 for success. Response contains a JSON with all of the items in the table
+
+      .then((response) => callback(null, createResponse(200, response.Items)))
+
+      // Catches any errors returned from the promise.
+
+      .catch((error) => callback(null, response(error.statusCode, error)))
+  );
+}
+
+module.exports = { addNewPost, getAllPosts };
