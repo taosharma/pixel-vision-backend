@@ -10,7 +10,7 @@ custom:
   settings:
     # The name of the custom table in DynamoDB
 
-    PIXEL_VISION_TABLE: pixelVisionTable
+    PIXEL_VISION_TABLE: pixelVisionTable4
 
 # A provider object.
 
@@ -93,7 +93,7 @@ functions:
 
 resources:
   Resources:
-    PixelVisionTable:
+    PixelVisionTable4:
       # Specifies that we want the resource to create a DynamoDB table.
 
       Type: AWS::DynamoDB::Table

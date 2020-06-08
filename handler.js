@@ -13,9 +13,9 @@ const AWS = require('aws-sdk');
 
 const dataBase = new AWS.DynamoDB.DocumentClient({ apiVersion: '2019.11.21' });
 
-// Require UUID (universally unique identifier) to create item IDs.
+// Require UUID (universally unique identifier) to create item IDs - not currently using.
 
-const { v4: uuidv4 } = require('uuid');
+// const { v4: uuidv4 } = require('uuid');
 
 // Assigns the table set up in the .yml to a variable to be used in the CRUD functions.
 
@@ -54,7 +54,7 @@ function addNewPost(event, context, callback) {
   // The item that will be added to the database, made up of a uuid and the request body.
 
   const item = {
-    id: uuidv4(),
+    id: requestBody.id,
     type: requestBody.type,
     image: requestBody.image,
     title: requestBody.title,
@@ -108,7 +108,7 @@ function getAllPosts(event, context, callback) {
   );
 }
 
-//---------GET A SINGLE ITEM BY ID:---------
+//---------GET A ITEM BY ID:---------
 
 function getPostById(event, context, callback) {
   // Gets the id out of the parameters of the event aka the request (the equivalent of doing req.params).
@@ -119,10 +119,10 @@ function getPostById(event, context, callback) {
 YAML to be the partition key) */
 
   const params = {
+    TableName: pixelVisionTable,
     Key: {
       id: id,
     },
-    TableName: pixelVisionTable,
   };
 
   return (
@@ -132,10 +132,10 @@ YAML to be the partition key) */
 
       .get(params)
       .promise()
-      .then((res) => {
+      .then((response) => {
         // Checks if there's an item with that ID. If so, it's stored in res.Item
 
-        if (res.Item) callback(null, createResponse(200, res.Item));
+        if (response.Item) callback(null, createResponse(200, response.Item));
         // If it doesn't find anything with that id, you send a 404 error instead.
         else
           callback(
@@ -143,7 +143,7 @@ YAML to be the partition key) */
             createResponse(404, { error: 'No item with that name found' })
           );
       })
-      .catch((err) => callback(null, createResponse(err.statusCode, err)))
+      .catch((error) => callback(null, createResponse(error.statusCode, error)))
   );
 }
 
