@@ -116,6 +116,6 @@ resources:
         # The attribute that controls how many times the table can be used.
 
         ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
+          ReadCapacityUnits: 10
+          WriteCapacityUnits: 10
         TableName: ${self:custom.settings.PIXEL_VISION_TABLE}

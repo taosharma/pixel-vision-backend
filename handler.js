@@ -104,7 +104,7 @@ function getAllPosts(event, context, callback) {
 
       // Catches any errors returned from the promise.
 
-      .catch((error) => callback(null, response(error.statusCode, error)))
+      .catch((error) => callback(null, createResponse(error.statusCode, error)))
   );
 }
 
@@ -147,4 +147,43 @@ YAML to be the partition key) */
   );
 }
 
-module.exports = { addNewPost, getAllPosts, getPostById };
+function getPostsByType(event, context, callback) {
+  const type = event.pathParameters.type;
+
+  const params = {
+    TableName: pixelVisionTable,
+    Key: {
+      id: 'an-example-epsiode',
+    },
+    FilterExpression: `:type = ${type}`,
+    ExpressionAttributeValues: {
+      ':type': 'type',
+      ':id': 'id',
+    },
+  };
+
+  // Creates and returns an instance of DynamoDB.
+
+  return (
+    dataBase
+
+      // Passes the params object to get to use it to look for the id in the table
+
+      .get(params)
+      .promise()
+      .then((response) => {
+        // Checks if there's an item with that ID. If so, it's stored in res.Item
+
+        if (response.Item) callback(null, createResponse(200, response.Item));
+        // If it doesn't find anything with that id, you send a 404 error instead.
+        else
+          callback(
+            null,
+            createResponse(404, { error: 'No item with that name found' })
+          );
+      })
+      .catch((error) => callback(null, createResponse(error.statusCode, error)))
+  );
+}
+
+module.exports = { addNewPost, getAllPosts, getPostById, getPostsByType };
