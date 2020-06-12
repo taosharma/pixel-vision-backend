@@ -62,13 +62,6 @@ functions:
           path: /
           method: get
           cors: true
-  getPostsByType: # GET request.
-    handler: handler.getPostsByType
-    events:
-      - http:
-          path: /type/{type}
-          method: get
-          cors: true
   getPostById: # GET request.
     handler: handler.getPostById
     events:
@@ -82,13 +75,6 @@ functions:
       - http:
           path: /{id}
           method: patch
-          cors: true
-  deletePostById: # DELETE request.
-    handler: handler.deletePostById
-    events:
-      - http:
-          path: /{id}
-          method: delete
           cors: true
 
 resources:

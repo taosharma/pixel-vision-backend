@@ -49,19 +49,32 @@ function addNewPost(event, context, callback) {
 
   const requestBody = JSON.parse(event.body);
 
-  // const { type, image, title, date, link, text } = requestBody;
+  const {
+    id,
+    number,
+    type,
+    image,
+    alt,
+    title,
+    date,
+    link,
+    text,
+    comments,
+  } = requestBody;
 
   // The item that will be added to the database, made up of a uuid and the request body.
 
   const item = {
-    id: requestBody.id,
-    type: requestBody.type,
-    image: requestBody.image,
-    title: requestBody.title,
-    date: requestBody.date,
-    link: requestBody.link,
-    text: requestBody.text,
-    comments: requestBody.comments,
+    id,
+    number,
+    type,
+    image,
+    alt,
+    title,
+    date,
+    link,
+    text,
+    comments,
   };
 
   // Puts the item in the database by using the database name and the item variables. PUT is used rather than POST for DynamoDB.
@@ -147,33 +160,40 @@ YAML to be the partition key) */
   );
 }
 
-function getPostsByType(event, context, callback) {
-  const type = event.pathParameters.type;
+//---------GET A ITEM BY ID:---------
+
+function updatePostById(event, context, callback) {
+  // Gets the id out of the parameters of the event aka the request (the equivalent of doing req.params).
+
+  const id = event.pathParameters.id;
+  const requestBody = JSON.parse(event.body);
+  const { comments } = requestBody;
+
+  /* Separate params object to tell the db which table and to use the id as the key (which will work because we set up the id in the 
+YAML to be the partition key) */
 
   const params = {
     TableName: pixelVisionTable,
     Key: {
-      id: 'an-example-epsiode',
+      id: id,
     },
-    FilterExpression: `:type = ${type}`,
+    UpdateExpression: 'set comments = :c',
     ExpressionAttributeValues: {
-      ':type': 'type',
-      ':id': 'id',
+      ':c': comments,
     },
+    ReturnValues: 'UPDATED_NEW',
   };
-
-  // Creates and returns an instance of DynamoDB.
 
   return (
     dataBase
 
       // Passes the params object to get to use it to look for the id in the table
 
-      .get(params)
+      .update(params)
       .promise()
       .then((response) => {
         // Checks if there's an item with that ID. If so, it's stored in res.Item
-
+        console.log(response);
         if (response.Item) callback(null, createResponse(200, response.Item));
         // If it doesn't find anything with that id, you send a 404 error instead.
         else
@@ -186,4 +206,4 @@ function getPostsByType(event, context, callback) {
   );
 }
 
-module.exports = { addNewPost, getAllPosts, getPostById, getPostsByType };
+module.exports = { addNewPost, getAllPosts, getPostById, updatePostById };
