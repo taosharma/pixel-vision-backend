@@ -153,7 +153,7 @@ YAML to be the partition key) */
         else
           callback(
             null,
-            createResponse(404, { error: 'No item with that name found' })
+            createResponse(404, { error: 'No post with that id found' })
           );
       })
       .catch((error) => callback(null, createResponse(error.statusCode, error)))
@@ -162,7 +162,7 @@ YAML to be the partition key) */
 
 //---------GET A ITEM BY ID:---------
 
-function updatePostById(event, context, callback) {
+function updateCommentsById(event, context, callback) {
   // Gets the id out of the parameters of the event aka the request (the equivalent of doing req.params).
 
   const id = event.pathParameters.id;
@@ -193,17 +193,21 @@ YAML to be the partition key) */
       .promise()
       .then((response) => {
         // Checks if there's an item with that ID. If so, it's stored in res.Item
-        console.log(response);
-        if (response.Item) callback(null, createResponse(200, response.Item));
+        console.log(
+          'Hello I am a comment that you have written, here is the response:',
+          response
+        );
+        if (response.Attributes)
+          callback(null, createResponse(200, response.Attributes));
         // If it doesn't find anything with that id, you send a 404 error instead.
         else
           callback(
             null,
-            createResponse(404, { error: 'No item with that name found' })
+            createResponse(404, { error: 'No post with that id found' })
           );
       })
       .catch((error) => callback(null, createResponse(error.statusCode, error)))
   );
 }
 
-module.exports = { addNewPost, getAllPosts, getPostById, updatePostById };
+module.exports = { addNewPost, getAllPosts, getPostById, updateCommentsById };
