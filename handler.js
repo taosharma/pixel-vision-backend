@@ -51,14 +51,13 @@ function addNewPost(event, context, callback) {
 
   const {
     id,
-    number,
     type,
-    image,
-    alt,
-    title,
-    date,
-    link,
+    number,
+    headerImage,
+    images,
+    audioLink,
     text,
+    tags,
     comments,
   } = requestBody;
 
@@ -66,14 +65,13 @@ function addNewPost(event, context, callback) {
 
   const item = {
     id,
-    number,
     type,
-    image,
-    alt,
-    title,
-    date,
-    link,
+    number,
+    headerImage,
+    images,
+    audioLink,
     text,
+    tags,
     comments,
   };
 
